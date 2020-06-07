@@ -1,7 +1,9 @@
 const express = require('express');
-const _ = require('underscore');
 const ejs = require('ejs');
 const authRoutes = require('./routes/auth-routes');
+require('dotenv').config();
+
+const passportSetup = require('./config/passport-setup');
 
 const server = express();
 // set up view engine
