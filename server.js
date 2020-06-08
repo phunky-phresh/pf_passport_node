@@ -1,7 +1,6 @@
 const express = require('express');
 const ejs = require('ejs');
 const authRoutes = require('./routes/auth-routes');
-// require('dotenv').config();
 
 const passportSetup = require('./config/passport-setup');
 
@@ -24,5 +23,4 @@ server.listen(PORT, () => {
   console.log(`Now serving on http://localhost:${ PORT }/`);  
 });
 
-// console.log(process.env.CLIENT_ID);
 
