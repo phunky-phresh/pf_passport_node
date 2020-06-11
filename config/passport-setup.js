@@ -20,7 +20,7 @@ passport.use(
     const name = profile.displayName;
     const res = await hasuraRequest( INSERT, { objects: [{ id: id, email: name }]});  
     console.log(res);
-    console.log(accessToken);
+  
     
     })
 );
