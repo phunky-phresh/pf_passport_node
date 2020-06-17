@@ -17,7 +17,7 @@ server.get('/', (req, res) => {
   res.render('home.ejs');
 });
 
-const PORT = 3000;
+const PORT = 3001;
 
 server.listen(PORT, () => {
   console.log(`Now serving on http://localhost:${ PORT }/`);  
