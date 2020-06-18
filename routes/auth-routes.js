@@ -19,8 +19,10 @@ router.get('/google', passport.authenticate('google', {
 
 // callback route for google to redirect to
 router.get('/google/redirect', passport.authenticate('google'), (req, res) => {
-  res.send('you reached the callback URI');
-  console.log('redirect, auth-routes');
+  
+  // res.send(req.user);
+  console.log('redirect, auth-routes', req.user);
+  res.redirect('http://localhost:3000/')
   
 })
 

@@ -6,6 +6,21 @@ const fetch = require( "node-fetch" );
 
 // const keys = require('../.env');
 
+passport.serializeUser((user, done) => {
+  console.log('serial', user);
+  
+  done(null, user.id);
+});
+
+passport.deserializeUser((id, done) => {
+  const user = hasuraRequest(CHECK, {id}).then((user) => {
+    done(null, user);
+  });
+
+  
+});
+
+
 passport.use( 
   new GoogleStrategy({
   // options for strategy
@@ -17,46 +32,26 @@ passport.use(
     console.log('passport callback function fired');
     const id = profile.id;
     const name = profile.displayName;
-
+    
     // check if user already exists in db
-    const res1 = await hasuraCheckUser(CHECK, {id});
-    console.log(res1);
-    // const idCheck = res1.data.users_by_pk.id;
-    if (!res1.data.users_by_pk) {
-      const res = await hasuraRequest( INSERT, { objects: [{ id: id, username: name }]});
-      
-      console.log('new user', res);
-      
-    } else {
+    const currentUser = await hasuraRequest(CHECK, {id});
+    if (currentUser.data.users_by_pk) {
       console.log('user exists');
-      
-    }
-    
-    
-    // console.log(res1.data);
-    // console.log(res1.data.users);
-    
 
-    
-    
+      done(null, currentUser.data.users_by_pk)
+
+    } else {
+      // create new user if one isn't found
+      const createUser = await hasuraRequest( INSERT, { objects: { id: id, username: name }}).then((newUser) => {
+        console.log('new user', newUser.data.insert_users.returning[0]);
+        done(null, newUser.data.insert_users.returning[0])
+      });
+      
+    }  
     })
 );
 
-const hasuraCheckUser = async (query, variables) => {
-  const response = await fetch( "https://hasuraql-pf.herokuapp.com/v1/graphql", {
-		method: "POST",
-		headers: {
-			"Accept": "application/json",
-			"Content-Type": "application/json",
-			"X-Hasura-Admin-Secret": process.env.HASURA_SECRET,
-		},
-		body: JSON.stringify({
-      query,
-      variables,
-		}),
-	});
-	return await response.json();
-}
+
 
 const hasuraRequest = async ( query, variables ) => {
 	const response = await fetch( "https://hasuraql-pf.herokuapp.com/v1/graphql", {
@@ -80,7 +75,7 @@ mutation insertUser ( $objects: [users_insert_input!]! ) {
         objects: $objects, 
         on_conflict: { constraint: users_pkey, update_columns: username }
     ) {
-        returning { id }
+        returning { id, username }
     }
 }`;
 
